@@ -53,6 +53,7 @@ coverage.xml
 # video screengrab
 *.mp4
 *.jpg
+*.png
 
 # Neptune ML Logging
 *.neptune

@@ -27,8 +27,10 @@ WORKDIR /home/lpe
 ENV PATH="$PATH:/home/lpe/.local/bin"
 
 ## Install jupyter notebook
-RUN pip3 install --user --upgrade jupyter jupyterlab notebook ruamel.yaml matplotlib==3.2 bqplot ipywidgets voila setuptools pyyaml
-# Louis: matplotlib 3.2 for compatibility with neptune (matplotlib latest version is 3.4 and does not work)
+RUN pip3 install --user --upgrade \
+  jupyter jupyterlab notebook ruamel.yaml \
+  matplotlib==3.2  bqplot ipywidgets voila setuptools pyyaml
+# Louis: pin matplotlib 3.2 for compatibility with neptune (matplotlib latest version is 3.4 and does not work)
 
 ## Install nbextensions for convenient snippets
 # the last three lines are a temporary fix to a version mismatch with nbconvert https://github.com/ipython-contrib/jupyter_contrib_nbextensions/issues/1529
@@ -54,12 +56,16 @@ RUN jupyter nbextension install --user --py ipympl \
 
 ## KEEP THESE LINES LAST:
 # Use these lines for quick install of pip and apt packages during experimentation:
-# RUN pip3 install --user \
-#   tqdm ikpy
-# RUN sudo apt-get update -y && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-#    <package> \
-# && sudo rm -rf /var/lib/apt/lists/* \
-# && sudo apt-get clean
+RUN pip3 install --user \
+  opencv-python \
+  pydot
+RUN sudo apt-get update -y && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  ffmpeg libsm6 libxext6 \
+  python3-rospy python3-geometry-msgs \
+  python3-tf python3-tf2-geometry-msgs python3-tf2-ros \
+  graphviz \
+&& sudo rm -rf /var/lib/apt/lists/* \
+&& sudo apt-get clean
 
 # setup entrypoint
 RUN echo "echo '~/.bashrc has been executed'" >> ~/.bashrc
