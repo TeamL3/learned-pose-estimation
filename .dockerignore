@@ -1,0 +1,5 @@
+# reduce the amount of files sent to the build context
+# this file must be at the root of the build context
+
+#  exclude the heavy data folder from the build context
+data

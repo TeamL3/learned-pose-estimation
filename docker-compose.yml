@@ -1,0 +1,65 @@
+version: "3"
+services:
+  lpe:
+    ## Choose to build our own container with our own docker file
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # image: @TODO upload to dockerhub
+
+    # generic settings
+    tty: true
+    stdin_open: true
+    command: "/bin/bash"
+    environment:
+      - NEPTUNE_API_TOKEN=$NEPTUNE_API_TOKEN  # for Neptune machine learning logging
+    # for jupyter notebook
+    ports:
+      - 8888:8888
+    # GPU settings
+    shm_size: 16G
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities:
+              - gpu         # equivalent to docker's --gpus=all flag
+        # reservations:
+        #   cpus: '3'
+        #   memory: 4G
+        # limits:
+        #   cpus: '10'
+        #   memory: 24G
+
+    volumes:
+      # First, create a named volume to make the build data persistent
+      - workspace_data:/home/lpe/build
+      # Then, mount the source code and data folders from the host to the container
+      - ./src:/home/lpe/src
+      - ./data:/data
+      # Convenience: mount the notebook snippet folder as read only
+      - ./misc/snippets/:/snippets/:ro
+
+      # sync timezone with host
+      # - "/etc/timezone:/etc/timezone:ro"
+      # - "/etc/localtime:/etc/localtime:ro"
+      # copied from NASA's run_com_final.bash script:
+      # - /etc/group:/etc/group:ro
+      # - /etc/passwd:/etc/passwd:ro
+      # - /etc/shadow:/etc/shadow:ro
+      # - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      # - /tmp/.docker.xauth:/tmp/.docker.xauth:rw
+      # - /dev/log:/dev/log:rw
+
+# Declare the volume used by our service
+volumes:
+  workspace_data:
+
+# Declare the network: break container isolation making our local use case easier
+# networks:
+#   default:
+#     driver: bridge
+
+## HOW TO:
+## Pull the latest image from our docker hub with docker-compose pull lpe
+## Run the service with the usual: docker-compose run --rm lpe

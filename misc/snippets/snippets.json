@@ -1,0 +1,84 @@
+{
+    "snippets" : [
+        {
+            "name" : "autoreload",
+            "code" : [
+                "%load_ext autoreload",
+                "%autoreload 2"
+            ]
+        },
+        {
+            "name" : "full width notebook",
+            "code" : [
+                "from IPython.core.display import display, HTML",
+                "display(HTML(",
+                "    '<style>'",
+                "        '#notebook { padding-top:0px !important; } ' ",
+                "       '.container { width:100% !important; } ' ",
+                "       '.end_space { min-height:0px !important; } ' ",
+                "    '</style>'",
+                "))"
+            ]
+        },
+        {
+            "name" : "matplotlib",
+            "code" : [
+                "import matplotlib.pyplot as plt",
+                "%matplotlib inline"
+            ]
+        },
+        {
+            "name" : "plotly",
+            "code" : [
+                "import plotly.express as px",
+                "import plotly.graph_objects as go",
+                "import plotly.io as pio",
+                "pio.templates.default = 'plotly_white'"
+            ]
+        },
+        {
+            "name" : "ruamel.yaml",
+            "code" : [
+                "import ruamel.yaml",
+                "config_path = '/config/single_each.yaml'",
+                "yaml = ruamel.yaml.YAML()",
+                "with open(config_path, 'r') as conf_:",
+                "    config = yaml.load(conf_.read())",
+                "team = config['team']"
+            ]
+        },
+        {
+            "name" : "tensorflow",
+            "code" : [
+                "import os",
+                "import tensorflow as tf",
+                "import tensorflow.keras as keras",
+                "os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'",
+                "physical_devices = tf.config.list_physical_devices('GPU')" ,
+                "tf.config.experimental.set_memory_growth(physical_devices[0], True)",
+                "print(f'tf: {tf.__version__}, keras: {keras.__version__}')"
+            ]
+        },
+        {
+            "name" : "tensorflow test",
+            "code" : [
+                "tf.reduce_sum(tf.random.normal([10000, 10000]))"
+            ]
+        },
+        {
+            "name" : "tensorflow_xla",
+            "code" : [
+                "tf.config.optimizer.set_jit(True)"
+            ]
+        },
+        {
+            "name" : "keras_mixed_precision",
+            "code" : [
+              "from tensorflow.keras.mixed_precision import experimental as mixed_precision",
+              "policy = mixed_precision.Policy('mixed_float16')",
+              "# policy = mixed_precision.Policy('float32')  # back to default",
+              "mixed_precision.set_policy(policy)"
+            ]
+        }
+    ]
+}
