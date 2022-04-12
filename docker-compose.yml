@@ -13,7 +13,7 @@ services:
     command: "/bin/bash"
     environment:
       - NEPTUNE_API_TOKEN=$NEPTUNE_API_TOKEN  # for Neptune machine learning logging
-    # for jupyter notebook
+    # for jupyter notebook (need to use 'docker-compose run --service-ports lpe')
     ports:
       - 8888:8888
     # GPU settings
@@ -62,4 +62,4 @@ volumes:
 
 ## HOW TO:
 ## Pull the latest image from our docker hub with docker-compose pull lpe
-## Run the service with the usual: docker-compose run --rm lpe
+## Run the service with the usual: docker-compose run --service-ports --rm lpe

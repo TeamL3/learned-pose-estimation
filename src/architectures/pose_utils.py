@@ -1,18 +1,21 @@
 from ros_utils import ros_utils
 import numpy as np
 import pickle
+import io
+from PIL import Image
 import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
+from plotly.subplots import make_subplots
 pio.templates.default = "plotly_white"
-
 
 DEG_TO_RAD = np.pi / 180.0
 RAD_TO_SCALED = 1 / np.pi  # ensure angle is within [-1, 1]
 MAX_DEPTH = 25  # m
 METERS_TO_SCALED = 1 / MAX_DEPTH  # ensure depth is within [0, 1]
 INTENSITY_TO_SCALED = 1 / 255.  # # ensure pixel intensities are within [0, 1]
+
 
 def show_rgbd(img, figsize=(20, 5), format='rgbd'):
     # TODO: refactor conditions, this grew a bit too bespoke ><
@@ -102,6 +105,18 @@ def show_rgbd(img, figsize=(20, 5), format='rgbd'):
             print(f"n_channels = {n_channels} with format = {format} are not supported")
 
     return fig, ax
+
+
+def plotly2array(fig):
+    # convert a Plotly interactive figure to a numpy array (to save as a static image)
+    # from https://community.plotly.com/t/converting-byte-object-to-numpy-array/40189/2
+    fig_bytes = fig.to_image(format="png")
+    buf = io.BytesIO(fig_bytes)
+    img = Image.open(buf)
+    arr = np.asarray(img)
+    if np.max(arr) > 1:  # convert from 0-255 range to 0-1 range
+        arr = arr/255.
+    return arr
 
 
 def hist_labels(labels, title='label histogram', figsize=(20, 5)):
@@ -243,13 +258,13 @@ def viz_positions_ros(gt_poses, viz_heading_offset, name='ros', footprint='proce
 
 
 def viz_positions(x_list, y_list, yaw_list, name='predict', footprint='small_excavator_1', subset=None):
-    if subset is None:
+    if subset is None or subset > len(x_list):
         subset = len(x_list)
     fig = go.Figure(
         data=go.Scatter(
             x=x_list[:subset],
             y=y_list[:subset],
-            customdata=[y / DEG_TO_RAD for y in yaw_list],  # convert to degrees
+            customdata=[yaw / DEG_TO_RAD for yaw in yaw_list],  # convert to degrees
             mode='markers',
             name=name,
             hovertemplate="yaw = %{customdata:.1f} deg"
@@ -308,7 +323,7 @@ def viz_positions(x_list, y_list, yaw_list, name='predict', footprint='small_exc
 
 
 def viz_positions_additional(fig, x_list, y_list, name='ground truth', footprint='processing_plant', subset=None):
-    if subset is None:
+    if subset is None or subset > len(x_list):
         subset = len(x_list)
     fig.add_trace(
         go.Scatter(
@@ -333,7 +348,7 @@ def viz_orientations_ros(fig, gt_poses, subset=None):
 
 
 def viz_orientations(fig, x_list, y_list, yaw_list, subset=None):
-    if subset is None:
+    if subset is None or subset > len(x_list):
         subset = len(x_list)
     # add arrows to show the yaw orientation (rover is pointing towards the processing plant)
     annotations = []
@@ -359,7 +374,7 @@ def viz_orientations(fig, x_list, y_list, yaw_list, subset=None):
 
 
 def viz_orientations_additional(fig, annotations, x_list, y_list, yaw_list, subset=None):
-    if subset is None:
+    if subset is None or subset > len(x_list):
         subset = len(x_list)
     # add arrows to show the yaw orientation (rover is pointing towards the processing plant)
     additional_annotations = []
@@ -385,7 +400,7 @@ def viz_orientations_additional(fig, annotations, x_list, y_list, yaw_list, subs
 
 
 def viz_link(fig, x0_list, y0_list, x1_list, y1_list, subset=None):
-    if subset is None:
+    if subset is None or subset > len(x0_list):
         subset = len(x0_list)
     # add arrows to show link between predict and ground truth
     for x0, y0, x1, y1 in zip(x0_list[:subset], y0_list[:subset], x1_list[:subset], y1_list[:subset]):
@@ -535,4 +550,116 @@ def plot_optical_poses(
     fig = viz_positions(x_list, y_list, yaw_list, name=title, subset=subset, footprint=footprint)
     fig, annotations = viz_orientations(fig, x_list, y_list, [y + np.pi / 2. for y in yaw_list], subset=subset)  # add pi/2 for vizualization to make the arrow point to the front of the rover
     fig.update_layout(title=title)
+    return fig
+
+
+def compare_each_output(
+    d_true, theta_true, yaw_true,
+    d_list, theta_list, yaw_list,
+    subset=50):
+    if subset > len(d_true):
+        subset = len(d_true)
+
+    # preliminary: scale the angles to degrees for humans
+    theta_true = [_ / DEG_TO_RAD for _ in theta_true]
+    yaw_true = [_ / DEG_TO_RAD for _ in yaw_true]
+    theta_list = [_ / DEG_TO_RAD for _ in theta_list]
+    yaw_list = [_ / DEG_TO_RAD for _ in yaw_list]
+
+    # create stacked subplots with each output
+    fig = make_subplots(
+        rows=3, cols=1,
+        shared_xaxes=True,
+        subplot_titles=['distance (meters)', 'theta (degress)', 'orientation (degrees)']
+    )
+    fig.add_trace(go.Scatter(
+        y=d_list[:subset],
+        mode='markers',
+        name='d_pred',
+        marker_color='blue'
+        ),
+        row=1, col=1
+    )
+    fig.add_trace(go.Scatter(
+        y=d_true[:subset],
+        mode='markers',
+        name='d_true',
+        marker_color='red'
+        ),
+        row=1, col=1
+    )
+    for x0, y0, x1, y1 in zip(range(len(d_list[:subset])), d_list[:subset], range(len(d_true[:subset])), d_true[:subset]):
+        fig.add_shape(
+            type='line',
+            xref='x', yref='y',
+            x0=x0, y0=y0, x1=x1, y1=y1,
+            line=dict(
+                color="grey",
+                width=1,
+                dash="dot",
+            ),
+            row=1, col=1
+        )
+    fig.add_trace(go.Scatter(
+        y=theta_list[:subset],
+        mode='markers',
+        name='theta_pred',
+        marker_color='blue'
+        ),
+        row=2, col=1
+    )
+    fig.add_trace(go.Scatter(
+        y=theta_true[:subset],
+        mode='markers',
+        name='theta_true',
+        marker_color='red'
+        ),
+        row=2, col=1
+    )
+    for x0, y0, x1, y1 in zip(range(len(theta_list[:subset])), theta_list[:subset], range(len(theta_true[:subset])), theta_true[:subset]):
+        fig.add_shape(
+            type='line',
+            xref='x', yref='y',
+            x0=x0, y0=y0, x1=x1, y1=y1,
+            line=dict(
+                color="grey",
+                width=1,
+                dash="dot",
+            ),
+            row=2, col=1
+        )
+    fig.add_trace(go.Scatter(
+        y=yaw_list[:subset],
+        mode='markers',
+        name='yaw_pred',
+        marker_color='blue'
+        ),
+        row=3, col=1
+    )
+    fig.add_trace(go.Scatter(
+        y=yaw_true[:subset],
+        mode='markers',
+        name='yaw_true',
+        marker_color='red'
+        ),
+        row=3, col=1
+    )
+    for x0, y0, x1, y1 in zip(range(len(yaw_list[:subset])), yaw_list[:subset], range(len(yaw_true[:subset])), yaw_true[:subset]):
+        fig.add_shape(
+            type='line',
+            xref='x', yref='y',
+            x0=x0, y0=y0, x1=x1, y1=y1,
+            line=dict(
+                color="grey",
+                width=1,
+                dash="dot",
+            ),
+            row=3, col=1
+        )
+
+    fig.update_layout(
+        height=800,
+        width=1000,
+        title_text="Comparison of prediction and ground truth for each output"
+    )
     return fig

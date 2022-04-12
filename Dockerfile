@@ -53,19 +53,30 @@ RUN jupyter nbextension install --user --py ipympl \
 && jupyter nbextension enable --user --py ipyevents \
 && jupyter nbextension enable --user --py neptune-notebooks
 
-
-## KEEP THESE LINES LAST:
-# Use these lines for quick install of pip and apt packages during experimentation:
+# install other common packages
 RUN pip3 install --user \
   opencv-python \
-  pydot
+    pydot \
+    black \
+    kaleido \
+    tensorboard-plugin-profile
+
 RUN sudo apt-get update -y && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
   ffmpeg libsm6 libxext6 \
   python3-rospy python3-geometry-msgs \
   python3-tf python3-tf2-geometry-msgs python3-tf2-ros \
   graphviz \
-&& sudo rm -rf /var/lib/apt/lists/* \
-&& sudo apt-get clean
+  && sudo rm -rf /var/lib/apt/lists/* \
+  && sudo apt-get clean
+
+## KEEP THESE LINES LAST:
+# Use these lines for quick install of pip and apt packages during experimentation:
+# RUN pip3 install --user \
+#
+# RUN sudo apt-get update -y && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+#   \
+# && sudo rm -rf /var/lib/apt/lists/* \
+# && sudo apt-get clean
 
 # setup entrypoint
 RUN echo "echo '~/.bashrc has been executed'" >> ~/.bashrc

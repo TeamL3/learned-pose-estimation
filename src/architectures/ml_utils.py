@@ -11,7 +11,7 @@ from pose_utils import INTENSITY_TO_SCALED
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 import tensorflow as tf
-import tensorflow.keras as keras
+from tensorflow import keras
 
 
 def get_neptune_run(run_id, proj="ljburtz/relative-pose"):
@@ -37,7 +37,7 @@ def get_neptune_run(run_id, proj="ljburtz/relative-pose"):
     return params, run
 
 
-def get_neptune_latest_run(proj="ljburtz/sar-unet2"):
+def get_neptune_latest_run(proj="ljburtz/relative-pose"):
     """ get id of run on Neptune that has the latest creation_time. Then use that id to get the corresponding neptune run object and associated run parameters
     """
     runs_df = neptune.get_project(name=proj).fetch_runs_table().to_pandas()
@@ -193,4 +193,23 @@ def predict_and_scale(model, ds, ds_batched, n_pred, batch_size):
         d_true.append(label.numpy()[0] / METERS_TO_SCALED)
         theta_true.append(label.numpy()[1] / RAD_TO_SCALED)
         yaw_true.append(label.numpy()[2] / RAD_TO_SCALED)
+    return d_true, theta_true, yaw_true, d_list, theta_list, yaw_list
+
+
+def predict_and_no_scale(model, ds, ds_batched, n_pred, batch_size):
+    # just for debug purposes
+    d_list = []
+    theta_list = []
+    yaw_list = []
+    d_true = []
+    theta_true = []
+    yaw_true = []
+    for (d, theta, yaw), (image, label) in zip(model.predict(ds_batched.take(n_pred)), ds.take(n_pred * batch_size)):
+        d_list.append(d)
+        theta_list.append(theta)
+        yaw_list.append(yaw)
+
+        d_true.append(label.numpy()[0])
+        theta_true.append(label.numpy()[1])
+        yaw_true.append(label.numpy()[2])
     return d_true, theta_true, yaw_true, d_list, theta_list, yaw_list
