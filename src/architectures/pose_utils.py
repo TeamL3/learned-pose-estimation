@@ -140,6 +140,52 @@ def hist_labels(labels, title='label histogram', figsize=(20, 5)):
     return fig
 
 
+def subplot_labels(labels, viz='raw', subset=50, title='label subplots'):
+    if subset is None or subset > len(labels):
+        subset = len(labels)
+
+    # create stacked subplots with each output
+    if viz == 'raw':
+        units = ['raw'] * 3
+    elif viz == 'human':
+        units = ['meters', 'degrees', 'degrees']
+    else:
+        print(f"viz '{viz}' not supported. only 'raw' or 'human' are valid")
+
+    fig = make_subplots(
+        rows=3, cols=1,
+        shared_xaxes=True,
+        subplot_titles=[f'distance ({units[0]})', f'theta ({units[1]})', f'yaw ({units[2]})']
+    )
+    fig.add_trace(go.Scatter(
+            y=labels[:subset, 0] if viz == 'raw' else labels[:subset, 0]/ METERS_TO_SCALED,
+            mode='markers',
+            name='d',
+            ),
+            row=1, col=1
+        )
+    fig.add_trace(go.Scatter(
+            y=labels[:subset, 1] if viz == 'raw' else labels[:subset, 1]/ RAD_TO_SCALED / DEG_TO_RAD,
+            mode='markers',
+            name='theta',
+            ),
+            row=2, col=1
+        )
+    fig.add_trace(go.Scatter(
+            y=labels[:subset, 2] if viz == 'raw' else labels[:subset, 2]/ RAD_TO_SCALED / DEG_TO_RAD,
+            mode='markers',
+            name='yaw',
+            ),
+            row=3, col=1
+        )
+    fig.update_layout(
+        # height=800,
+        # width=1000,
+        title_text=title
+    )
+    return fig
+
+
 def hist_errors(d_true, theta_true, yaw_true, d_list, theta_list, yaw_list, n_bins=20, figsize=(20, 5)):
     error_d = [(true - pred) for true, pred in zip(d_true, d_list)]
     error_theta = []
@@ -319,6 +365,8 @@ def viz_positions(x_list, y_list, yaw_list, name='predict', footprint='small_exc
             showarrow=False,
             font_size=20
         )
+    else:
+        print(f"footprint '{footprint}' not supported")
     return fig
 
 
