@@ -17,6 +17,16 @@ METERS_TO_SCALED = 1 / MAX_DEPTH  # ensure depth is within [0, 1]
 INTENSITY_TO_SCALED = 1 / 255.  # # ensure pixel intensities are within [0, 1]
 
 
+def which_target(tf_data_path):
+    if 'hopper' in tf_data_path:
+        target='processing_plant'
+    elif 'scout' in tf_data_path:
+        target='small_scout_1'
+    else:
+        target='small_excavator_1'
+    return target
+
+
 def show_rgbd(img, figsize=(20, 5), format='rgbd'):
     # TODO: refactor conditions, this grew a bit too bespoke ><
     n_channels = np.atleast_3d(img).shape[-1]
