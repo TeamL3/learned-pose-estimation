@@ -53,13 +53,13 @@ coverage.xml
 # video screengrab
 *.mp4
 *.jpg
-*.png
 
 # Neptune ML Logging
 *.neptune
 
 # unit testing outputs
 test_outputs/
+model.png
 
 # large data folder
 data
