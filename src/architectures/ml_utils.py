@@ -1,3 +1,6 @@
+"""Utilities to define keras metrics, make model predictions and interface with the neptune.ai metadata logging cloud
+"""
+
 import numpy as np
 import pickle
 import neptune.new as neptune
@@ -15,7 +18,8 @@ from tensorflow import keras
 
 
 def get_neptune_run(run_id, proj="ljburtz/relative-pose"):
-    """ get the neptune run object stored with the run_id and the params dictionary that defined it's U-net training parameters
+    """ Get the neptune run object identified by the run_id + \
+    the params dictionary that defined its training parameters
     """
     # initialize this latest run, but disable restart of monitoring logs
     run = neptune.init(
@@ -38,7 +42,8 @@ def get_neptune_run(run_id, proj="ljburtz/relative-pose"):
 
 
 def get_neptune_latest_run(proj="ljburtz/relative-pose"):
-    """ get id of run on Neptune that has the latest creation_time. Then use that id to get the corresponding neptune run object and associated run parameters
+    """ Get the id of the run on Neptune that has the latest creation_time. \
+        Then use that id to return the corresponding neptune run object and associated run parameters
     """
     runs_df = neptune.get_project(name=proj).fetch_runs_table().to_pandas()
     latest_run_id = runs_df.sort_values('sys/creation_time', ascending=False)['sys/id'].values[0]
@@ -46,6 +51,8 @@ def get_neptune_latest_run(proj="ljburtz/relative-pose"):
 
 
 def get_best_metrics(history, loss_metric='loss', accuracy_metric='position_diff', val_prefix='val_'):
+    """utility to identify the epochs at which the lowest loss and best accuracy metric where obtained
+    """
     # loss = history.history[loss_metric]
     val_loss = history.history[val_prefix + loss_metric]
     # acc = history.history[accuracy_metric]
@@ -61,6 +68,8 @@ def get_best_metrics(history, loss_metric='loss', accuracy_metric='position_diff
 
 
 def load_dataset(path, compression=None):
+    """
+    """
     with open(path + '/element_spec', 'rb') as in_:
         es = pickle.load(in_)
 
@@ -71,7 +80,8 @@ def load_dataset(path, compression=None):
 
 
 def get_keras_model_full(custom_objects, model_path='/tmp/model_end.h5', compiled=True):
-    """ given the path to the .h5 saved model, and custom objects, return the corresponding keras model (and by default: compile it)
+    """ Given the path to the .h5 saved model, and custom objects, \
+       return the corresponding keras model (and by default: compile it)
     """
     keras.backend.clear_session()
     model = keras.models.load_model(
@@ -88,10 +98,11 @@ def get_keras_model_full(custom_objects, model_path='/tmp/model_end.h5', compile
 
 
 def get_keras_model_inference(config_path='/tmp/model_relative_pose_config.json', weigths_path="/tmp/model_relative_pose_weights.h5"):
-    """ lightweight model loading for inference purposes
-    config path should point to the json file created by model.to_json() and
-    weights path should point to the .h5 file created by model.save_weights after training.
-    Note: the model returned by this method cannot be used for additional training or model.evaluate() because custom objects are not included
+    """ Lightweight model loading for inference purposes
+    config path should point to the json file created by model.to_json()
+    weights path should point to the .h5 file created by model.save_weights after training
+    Note: the model returned by this method cannot be used for additional training or model.evaluate() \
+    because custom objects are not included
     """
     import json
     with open(config_path) as in_:
@@ -101,23 +112,9 @@ def get_keras_model_inference(config_path='/tmp/model_relative_pose_config.json'
     return model
 
 
-def position_loss(y_true, y_pred):
-    position_true = y_true[:, :2]
-    position_pred = y_pred[:, :2]
-    pos_diff = tf.norm(position_true - position_pred, axis=-1)
-    position_loss = tf.reduce_mean(pos_diff, axis=-1)
-
-    # d_true = y_true[:, 0]
-    # theta_true = y_true[:, 1]
-    # d_pred = y_pred[:, 0]
-    # theta_pred = y_pred[:, 1]
-    #
-    # pos_diff = tf.sqrt(tf.square(d_true) + tf.square(d_pred) - 2 * tf.multiply(tf.multiply(d_true, d_pred), tf.cos(theta_true - theta_pred)))
-    # position_loss = tf.reduce_mean(pos_diff, axis=-1)
-    return position_loss
-
-
 def distance_loss(y_true, y_pred):
+    """ Mean squared error on distance
+    """
     d_true = y_true[:, 0]
     d_pred = y_pred[:, 0]
     d_diff = tf.square(d_true - d_pred)
@@ -126,6 +123,8 @@ def distance_loss(y_true, y_pred):
 
 
 def theta_loss(y_true, y_pred):
+    """ Mean squared error on theta (polar coordinates angle)
+    """
     theta_true = y_true[:, 1]
     theta_pred = y_pred[:, 1]
     delta = theta_true - theta_pred
@@ -138,6 +137,8 @@ def theta_loss(y_true, y_pred):
 
 
 def orientation_loss(y_true, y_pred):
+    """ Mean squared error on orientation (yaw angle)
+    """
     orientation_true = y_true[:, 2]
     orientation_pred = y_pred[:, 2]
     ori_diff = tf.square(orientation_true - orientation_pred)
@@ -145,15 +146,10 @@ def orientation_loss(y_true, y_pred):
     return orientation_loss
 
 
-# --- Metrics for humans ---
-def position_diff(y_true, y_pred):
-    position_true = y_true[:, :2]
-    position_pred = y_pred[:, :2]
-    position_diff = tf.norm(position_true - position_pred, axis=-1) / METERS_TO_SCALED
-    return tf.reduce_mean(position_diff, axis=-1)
-
-
+# --- Metrics for humans, in physical units ---
 def distance_diff(y_true, y_pred):
+    """ Mean absolute error on distance, scaled to meters
+    """
     d_true = y_true[:, 0]
     d_pred = y_pred[:, 0]
     d_diff = tf.abs(d_true - d_pred) / METERS_TO_SCALED
@@ -161,6 +157,8 @@ def distance_diff(y_true, y_pred):
 
 
 def theta_diff(y_true, y_pred):
+    """ Mean absolute error on theta, scaled to degrees
+    """
     theta_true = y_true[:, 1]
     theta_pred = y_pred[:, 1]
     delta = theta_true - theta_pred
@@ -172,6 +170,8 @@ def theta_diff(y_true, y_pred):
 
 
 def orientation_diff(y_true, y_pred):
+    """ Mean absolute error on orientation (yaw angle), scaled to degrees
+    """
     orientation_true = y_true[:, 2]
     orientation_pred = y_pred[:, 2]
     orientation_diff = tf.abs(orientation_true - orientation_pred) / RAD_TO_SCALED / DEG_TO_RAD
@@ -179,6 +179,9 @@ def orientation_diff(y_true, y_pred):
 
 
 def predict_and_scale(model, ds, ds_batched, n_pred, batch_size):
+    """ Perform predictions with the given model, on the given dataset ds and scale to physical units
+    return six lists: the first three with the ground truth labels, the last three with the predictions
+    """
     d_list = []
     theta_list = []
     yaw_list = []
@@ -193,23 +196,4 @@ def predict_and_scale(model, ds, ds_batched, n_pred, batch_size):
         d_true.append(label.numpy()[0] / METERS_TO_SCALED)
         theta_true.append(label.numpy()[1] / RAD_TO_SCALED)
         yaw_true.append(label.numpy()[2] / RAD_TO_SCALED)
-    return d_true, theta_true, yaw_true, d_list, theta_list, yaw_list
-
-
-def predict_and_no_scale(model, ds, ds_batched, n_pred, batch_size):
-    # just for debug purposes
-    d_list = []
-    theta_list = []
-    yaw_list = []
-    d_true = []
-    theta_true = []
-    yaw_true = []
-    for (d, theta, yaw), (image, label) in zip(model.predict(ds_batched.take(n_pred)), ds.take(n_pred * batch_size)):
-        d_list.append(d)
-        theta_list.append(theta)
-        yaw_list.append(yaw)
-
-        d_true.append(label.numpy()[0])
-        theta_true.append(label.numpy()[1])
-        yaw_true.append(label.numpy()[2])
     return d_true, theta_true, yaw_true, d_list, theta_list, yaw_list

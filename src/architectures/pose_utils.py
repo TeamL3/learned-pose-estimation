@@ -1,3 +1,6 @@
+"""Plotting + data format and reference frame conversion utilities specific to the pose estimation problem
+"""
+
 from ros_utils import ros_utils
 import numpy as np
 import pickle

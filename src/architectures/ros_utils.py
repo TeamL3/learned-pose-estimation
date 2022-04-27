@@ -8,7 +8,8 @@ from std_msgs.msg import Header
 
 
 class ros_utils():
-    ''' static helper methods
+    ''' Static helper methods for manipulating the rosbags used for building this dataset
+    and converting gazebo ground truth poses
     '''
     @staticmethod
     def angle_in_range(angle, range_max):
@@ -304,8 +305,8 @@ class ros_utils():
 # for unit tests
 if __name__ == "__main__":
     try:
-        pass
         # unit tests placeholder
+        pass
 
     except rospy.ROSInterruptException:
         pass

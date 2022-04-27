@@ -102,9 +102,9 @@ Five scenarios, by increasing level of difficulty:
 
 
 Many utilities are provided to make it easy to manipulate and visualize the dataset and model predictions / errors:
-- `src/architectures/pose_utils`: plotting + data format and reference frame conversion utilities specific to the pose estimation problem
-- `src/architectures/ml_utils`: utilities to define keras metrics and interface with neptune.ai metadata logging
-- `src/architectures/ros_utils`: a collection of various utilities for manipulating the rosbags used for building this dataset and converting gazebo ground truth poses
+- `src/architectures/pose_utils`: Plotting + data format and reference frame conversion utilities specific to the pose estimation problem
+- `src/architectures/ml_utils`: Utilities to define keras metrics, make model predictions and interface with the neptune.ai metadata logging cloud
+- `src/architectures/ros_utils`: A collection of various utilities for manipulating the rosbags used for building this dataset and converting gazebo ground truth poses
 
 Following the 'tutorial' quick start notebooks should get you familiar with the data and the utilities painlessly.
 
@@ -118,7 +118,8 @@ Following the 'tutorial' quick start notebooks should get you familiar with the 
 - [x] data quickstart (visualize tfdata)
 - [x] pose estimation : several architectures
 - [x] pose estimation : training and viz tools
-- [ ] add docstrings to utils
+- [x] add docstrings to utils
 - [ ] readme
 - [ ] license
 - [ ] make repo public
+- [ ] leaderboard / model zoon?
