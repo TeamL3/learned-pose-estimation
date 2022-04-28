@@ -39,7 +39,7 @@ docker-compose run --service-ports --rm lpe
 
 
 ## More details
-The inspiration for this module was the NASA Space Robotics Challenge Phase 2 where the goal was to develop a fully autonomous team of rovers performing ressource extraction tasks on the Moon. More details [online](https://spacecenter.org/space-robotics-challenge/space-robotics-challenge-phase-2/). This repo is concerned with just a subset of the solution to this challenge developped by TeamL3 ( see the TeamL3 [youtube video](https://www.youtube.com/watch?v=1304IvB1OkA) and [executive summary](https://github.com/TeamL3/learned-pose-estimation/blob/main/resources/Team%20L3%20-%20ExecutiveSummary.pdf) and the `resources` folder for more info).
+The inspiration for this module was the NASA Space Robotics Challenge Phase 2 where the goal was to develop a fully autonomous team of rovers performing ressource extraction tasks on the Moon. More details [online](https://spacecenter.org/space-robotics-challenge/space-robotics-challenge-phase-2/). This repo is concerned with just a subset of the solution to this challenge developped by TeamL3 (see the TeamL3 [youtube video](https://www.youtube.com/watch?v=1304IvB1OkA) and [executive summary](https://github.com/TeamL3/learned-pose-estimation/blob/main/resources/Team%20L3%20-%20ExecutiveSummary.pdf) and the `resources` folder for more info).
 
 Even though the challenge is over, the dataset collected can still serve as an interesting benchmark for relative pose estimation algorithms, and for other applications!
 
@@ -110,7 +110,6 @@ Following the 'tutorial' quick start notebooks should get you familiar with the 
 
 
 ## Todo
-
 - [x] simplified docker environment
 - [ ] data download from kaggle
 - [x] tensorflow data preprocessing
@@ -119,7 +118,7 @@ Following the 'tutorial' quick start notebooks should get you familiar with the 
 - [x] pose estimation : several architectures
 - [x] pose estimation : training and viz tools
 - [x] add docstrings to utils
-- [ ] readme
-- [ ] license
-- [ ] make repo public
-- [ ] leaderboard / model zoon?
+- [x] readme
+- [x] license
+- [x] make repo public
+- [ ] leaderboard / model zoo?
