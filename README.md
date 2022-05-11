@@ -38,6 +38,8 @@ docker-compose run --service-ports --rm lpe
 - Start trying out new ideas in the `src/architectures/newIdea` folder!
 
 
+Note: if you prefer a no-install environment, the dataset is also hosted on Kaggle, with example kernels to start exploring the dataset and training on the Kaggle GPUs: [Learned Pose Estimation (robot on the Moon)](https://www.kaggle.com/datasets/louisburtz/learned-pose-estimation-robot-on-the-moon)
+
 ## More details
 The inspiration for this module was the NASA Space Robotics Challenge Phase 2 where the goal was to develop a fully autonomous team of rovers performing ressource extraction tasks on the Moon. More details [online](https://spacecenter.org/space-robotics-challenge/space-robotics-challenge-phase-2/). This repo is concerned with just a subset of the solution to this challenge developped by TeamL3 (see the TeamL3 [youtube video](https://www.youtube.com/watch?v=1304IvB1OkA) and [executive summary](https://github.com/TeamL3/learned-pose-estimation/blob/main/resources/Team%20L3%20-%20ExecutiveSummary.pdf) and the `resources` folder for more info).
 
@@ -105,13 +107,14 @@ Many utilities are provided to make it easy to manipulate and visualize the data
 - `src/architectures/pose_utils`: Plotting + data format and reference frame conversion utilities specific to the pose estimation problem
 - `src/architectures/ml_utils`: Utilities to define keras metrics, make model predictions and interface with the neptune.ai metadata logging cloud
 - `src/architectures/ros_utils`: A collection of various utilities for manipulating the rosbags used for building this dataset and converting gazebo ground truth poses
+- `src/architectures/pose_utils_rosbag`: Plotting + data format and reference frame conversion utilities - while dealing with rosbag datasets
 
 Following the 'tutorial' quick start notebooks should get you familiar with the data and the utilities painlessly.
 
 
 ## Todo
 - [x] simplified docker environment
-- [ ] data download from kaggle
+- [x] dataset hosting on kaggle with example kernels there
 - [x] tensorflow data preprocessing
 - [ ] (optional) explanation of rosbag datasets
 - [x] data quickstart (visualize tfdata)
