@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # image: @TODO upload to dockerhub
+    image: ljburtz/learned-pose-estimation
 
     # generic settings
     tty: true
@@ -61,5 +61,5 @@ volumes:
 #     driver: bridge
 
 ## HOW TO:
-## Pull the latest image from our docker hub with docker-compose pull lpe
+## Pull the latest image from our docker hub with 'docker-compose pull ljburtz/learned-pose-estimation'
 ## Run the service with the usual: docker-compose run --service-ports --rm lpe

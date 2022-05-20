@@ -25,9 +25,9 @@ gdown --id 1vSyWPZ1f_6QqEI1tMDh14v9_nC20D9w_
 unzip learned_pose_estimation_tfdatasets.zip
 cd ..
 ```
-2. build and run the docker environment
+2. pull and run the docker environment
 ```
-docker-compose build
+docker-compose pull ljburtz/learned-pose-estimation
 docker-compose run --service-ports --rm lpe
 ```
 3. ready to go!
@@ -37,6 +37,7 @@ docker-compose run --service-ports --rm lpe
   - a notebook for example training a basic neural network with keras/tensorflow `quick2_model_training.ipynb`
 - Start trying out new ideas in the `src/architectures/newIdea` folder!
 
+Feel free to open a Github Issue if you run into any trouble.
 
 Note: if you prefer a no-install environment, the dataset is also hosted on Kaggle, with example kernels to start exploring the dataset and training on the Kaggle GPUs: [Learned Pose Estimation (robot on the Moon)](https://www.kaggle.com/datasets/louisburtz/learned-pose-estimation-robot-on-the-moon)
 
@@ -116,6 +117,7 @@ Following the 'tutorial' quick start notebooks should get you familiar with the 
 - [x] simplified docker environment
 - [x] dataset hosting on kaggle with example kernels there
 - [x] tensorflow data preprocessing
+- [x] pull docker image from dockerhub
 - [ ] (optional) explanation of rosbag datasets
 - [x] data quickstart (visualize tfdata)
 - [x] pose estimation : several architectures
